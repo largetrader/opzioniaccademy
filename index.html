@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codice Opzioni – La tua voce conta</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C97A;
+  --gold-dim: rgba(201,168,76,0.15);
+  --dark: #0A0A0A;
+  --dark-2: #111111;
+  --dark-3: #1A1A1A;
+  --dark-4: #242424;
+  --text: #F0EDE8;
+  --text-muted: #8A8580;
+  --border: rgba(201,168,76,0.2);
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+.wrapper {
+  position:relative;
+  z-index:1;
+  max-width:640px;
+  margin:0 auto;
+  padding:48px 24px 80px;
+}
+.header { text-align:center; margin-bottom:48px; animation: fadeUp 0.6s ease both; }
+.logo-mark { display:inline-flex; align-items:center; gap:10px; margin-bottom:32px; }
+.logo-line { width:32px; height:1px; background:var(--gold); opacity:0.6; }
+.logo-text { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; letter-spacing:0.2em; color:var(--gold); text-transform:uppercase; }
+.header h1 { font-family:'Syne',sans-serif; font-weight:700; font-size:clamp(28px,6vw,40px); line-height:1.15; color:var(--text); margin-bottom:16px; }
+.header h1 span { color:var(--gold); }
+.header p { font-size:15px; line-height:1.7; color:var(--text-muted); max-width:420px; margin:0 auto; }
+
+.progress-wrap { margin-bottom:40px; animation: fadeUp 0.6s 0.1s ease both; }
+.progress-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.progress-label { font-size:12px; color:var(--text-muted); letter-spacing:0.05em; text-transform:uppercase; }
+.progress-count { font-family:'Syne',sans-serif; font-size:13px; color:var(--gold); font-weight:600; }
+.progress-bar { height:2px; background:var(--dark-4); border-radius:2px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius:2px; transition:width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+.step { display:none; animation: fadeUp 0.4s ease both; }
+.step.active { display:block; }
+
+.q-card { background:var(--dark-2); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px; margin-bottom:16px; }
+.q-number { font-size:11px; color:var(--gold); letter-spacing:0.15em; text-transform:uppercase; font-weight:500; margin-bottom:10px; }
+.q-text { font-family:'Syne',sans-serif; font-size:clamp(15px,4vw,19px); font-weight:600; line-height:1.4; color:var(--text); margin-bottom:6px; }
+.q-sub { font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:6px; }
+
+.options { display:flex; flex-direction:column; gap:10px; margin-top:20px; }
+.option { display:flex; align-items:flex-start; gap:14px; padding:14px 18px; background:var(--dark-3); border:1px solid rgba(255,255,255,0.06); border-radius:10px; cursor:pointer; transition:all 0.2s ease; user-select:none; }
+.option:hover { border-color:var(--gold); background:var(--dark-4); }
+.option.selected { border-color:var(--gold); background:var(--gold-dim); }
+.option-dot { width:18px; height:18px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.2); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s; margin-top:1px; }
+.option.selected .option-dot { border-color:var(--gold); background:var(--gold); }
+.option.selected .option-dot::after { content:''; width:6px; height:6px; background:var(--dark); border-radius:50%; }
+.option-tick { width:18px; height:18px; border-radius:5px; border:1.5px solid rgba(255,255,255,0.2); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s; margin-top:1px; }
+.option.selected .option-tick { border-color:var(--gold); background:var(--gold); }
+.option.selected .option-tick::after { content:'✓'; font-size:11px; color:var(--dark); font-weight:700; }
+.option-label { font-size:14px; line-height:1.5; color:var(--text); }
+
+textarea {
+  width:100%; background:var(--dark-3); border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif;
+  font-size:14px; font-weight:300; line-height:1.6; padding:16px; resize:none;
+  outline:none; transition:border-color 0.2s; margin-top:16px; min-height:100px;
+}
+textarea:focus { border-color:var(--gold); }
+textarea::placeholder { color:var(--text-muted); }
+
+.nav { display:flex; gap:12px; margin-top:24px; align-items:center; }
+.btn-back { padding:14px 20px; background:transparent; border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:14px; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
+.btn-back:hover { border-color:rgba(255,255,255,0.25); color:var(--text); }
+.btn-next { flex:1; padding:16px 24px; background:var(--gold); border:none; border-radius:10px; color:var(--dark); font-family:'Syne',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; letter-spacing:0.03em; }
+.btn-next:hover { background:var(--gold-light); transform:translateY(-1px); box-shadow:0 8px 24px rgba(201,168,76,0.25); }
+.btn-next:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+.multi-hint { font-size:12px; color:var(--gold); margin-top:10px; text-align:right; }
+
+.thankyou { display:none; text-align:center; padding:20px 0; animation: fadeUp 0.6s ease both; }
+.thankyou.active { display:block; }
+.ty-icon { width:72px; height:72px; border-radius:50%; background:var(--gold-dim); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto 28px; font-size:28px; }
+.thankyou h2 { font-family:'Syne',sans-serif; font-size:clamp(24px,5vw,32px); font-weight:700; color:var(--text); margin-bottom:16px; }
+.thankyou h2 span { color:var(--gold); }
+.thankyou p { font-size:15px; color:var(--text-muted); line-height:1.7; max-width:380px; margin:0 auto 32px; }
+.ty-divider { width:48px; height:1px; background:var(--gold); opacity:0.4; margin:24px auto; }
+.ty-note { font-size:13px; color:var(--text-muted); font-style:italic; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@media (max-width:480px) { .wrapper { padding:32px 16px 64px; } .q-card { padding:20px 16px; } }
+</style>
+</head>
+<body>
+
+<!-- Form nascosto per Netlify -->
+<form name="codice-opzioni" netlify netlify-honeypot="bot-field" hidden>
+  <input name="bot-field">
+  <input name="q1"><input name="q2"><input name="q3"><input name="q4">
+  <input name="q5"><input name="q6"><input name="q7"><input name="q8">
+</form>
+
+<div class="wrapper">
+
+  <div class="header">
+    <div class="logo-mark">
+      <div class="logo-line"></div>
+      <div class="logo-text">Codice Opzioni</div>
+      <div class="logo-line"></div>
+    </div>
+    <h1>Costruiamo le serate<br><span>su quello che ti serve</span></h1>
+    <p>Rispondi d'istinto — non è un esame. Ci vuole meno di tre minuti.</p>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-meta">
+      <span class="progress-label">Avanzamento</span>
+      <span class="progress-count" id="progressCount">1 / 8</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:12.5%"></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step active" id="step-1">
+    <div class="q-card">
+      <div class="q-number">Domanda 1 di 8</div>
+      <div class="q-text">Da quanto tempo segui le opzioni con noi?</div>
+    </div>
+    <div class="options">
+      <div class="option" data-val="Sto entrando ora" onclick="selectSingle(this,'q1')"><div class="option-dot"></div><div class="option-label">Sto entrando ora</div></div>
+      <div class="option" data-val="Da qualche mese" onclick="selectSingle(this,'q1')"><div class="option-dot"></div><div class="option-label">Da qualche mese</div></div>
+      <div class="option" data-val="Da circa un anno" onclick="selectSingle(this,'q1')"><div class="option-dot"></div><div class="option-label">Da circa un anno</div></div>
+      <div class="option" data-val="Da più di un anno" onclick="selectSingle(this,'q1')"><div class="option-dot"></div><div class="option-label">Da più di un anno</div></div>
+    </div>
+    <div class="nav"><button class="btn-next" id="next-1" onclick="goNext(1)" disabled>Avanti →</button></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="step-2">
+    <div class="q-card">
+      <div class="q-number">Domanda 2 di 8</div>
+      <div class="q-text">Con le opzioni, oggi a che punto te la senti di essere?</div>
+    </div>
+    <div class="options">
+      <div class="option" data-val="Sto ancora capendo cosa sono call e put" onclick="selectSingle(this,'q2')"><div class="option-dot"></div><div class="option-label">Sto ancora capendo bene cosa sono call e put</div></div>
+      <div class="option" data-val="So cosa sono ma replico solo i segnali" onclick="selectSingle(this,'q2')"><div class="option-dot"></div><div class="option-label">So cosa sono, ma replico solo i segnali senza costruire nulla da solo</div></div>
+      <div class="option" data-val="Replico e capisco a grandi linee" onclick="selectSingle(this,'q2')"><div class="option-dot"></div><div class="option-label">Replico i segnali e capisco a grandi linee perché funzionano</div></div>
+      <div class="option" data-val="Capisco la logica e costruisco qualcosa di mio" onclick="selectSingle(this,'q2')"><div class="option-dot"></div><div class="option-label">Capisco bene la logica e ogni tanto costruisco qualcosa di mio</div></div>
+      <div class="option" data-val="Opero in autonomia con regolarità" onclick="selectSingle(this,'q2')"><div class="option-dot"></div><div class="option-label">Opero in autonomia con regolarità</div></div>
+    </div>
+    <div class="nav"><button class="btn-back" onclick="goBack(2)">←</button><button class="btn-next" id="next-2" onclick="goNext(2)" disabled>Avanti →</button></div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step-3">
+    <div class="q-card">
+      <div class="q-number">Domanda 3 di 8</div>
+      <div class="q-text">Domanda lampo — rispondi d'istinto</div>
+      <div class="q-sub">Se il titolo resta fermo e passa il tempo, in una strategia chi ci guadagna?</div>
+    </div>
+    <div class="options">
+      <div class="option" data-val="Chi ha comprato l'opzione" onclick="selectSingle(this,'q3')"><div class="option-dot"></div><div class="option-label">Chi ha comprato l'opzione</div></div>
+      <div class="option" data-val="Chi ha venduto l'opzione" onclick="selectSingle(this,'q3')"><div class="option-dot"></div><div class="option-label">Chi ha venduto l'opzione</div></div>
+      <div class="option" data-val="Nessuno: se il titolo è fermo non si guadagna" onclick="selectSingle(this,'q3')"><div class="option-dot"></div><div class="option-label">Nessuno: se il titolo è fermo non si guadagna</div></div>
+      <div class="option" data-val="Non lo so" onclick="selectSingle(this,'q3')"><div class="option-dot"></div><div class="option-label">Non lo so</div></div>
+    </div>
+    <div class="nav"><button class="btn-back" onclick="goBack(3)">←</button><button class="btn-next" id="next-3" onclick="goNext(3)" disabled>Avanti →</button></div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" id="step-4">
+    <div class="q-card">
+      <div class="q-number">Domanda 4 di 8</div>
+      <div class="q-text">Le "greche" (delta, theta, vega, gamma), per te oggi sono…</div>
+    </div>
+    <div class="options">
+      <div class="option" data-val="Non so cosa siano" onclick="selectSingle(this,'q4')"><div class="option-dot"></div><div class="option-label">Non so cosa siano</div></div>
+      <div class="option" data-val="Ne ho sentito parlare ma non le so usare" onclick="selectSingle(this,'q4')"><div class="option-dot"></div><div class="option-label">Ne ho sentito parlare, ma non le so usare</div></div>
+      <div class="option" data-val="Le conosco ma non le guardo quando opero" onclick="selectSingle(this,'q4')"><div class="option-dot"></div><div class="option-label">Le conosco un po', ma non le guardo quando opero</div></div>
+      <div class="option" data-val="Le capisco e le uso" onclick="selectSingle(this,'q4')"><div class="option-dot"></div><div class="option-label">Le capisco e le uso</div></div>
+    </div>
+    <div class="nav"><button class="btn-back" onclick="goBack(4)">←</button><button class="btn-next" id="next-4" onclick="goNext(4)" disabled>Avanti →</button></div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step" id="step-5">
+    <div class="q-card">
+      <div class="q-number">Domanda 5 di 8</div>
+      <div class="q-text">Ti piacerebbe imparare a leggere greche, volatilità implicita e gamma?</div>
+      <div class="q-sub">Cioè capire davvero cosa muove le tue operazioni.</div>
+    </div>
+    <div class="options">
+      <div class="option" data-val="Sì, è proprio quello che voglio dalle serate" onclick="selectSingle(this,'q5')"><div class="option-dot"></div><div class="option-label">Sì, è proprio quello che voglio dalle serate</div></div>
+      <div class="option" data-val="Mi incuriosisce, se spiegato facile volentieri" onclick="selectSingle(this,'q5')"><div class="option-dot"></div><div class="option-label">Mi incuriosisce, se spiegato facile volentieri</div></div>
+      <div class="option" data-val="No, sono ancora alle basi" onclick="selectSingle(this,'q5')"><div class="option-dot"></div><div class="option-label">No, sono ancora alle basi, magari più avanti</div></div>
+    </div>
+    <div class="nav"><button class="btn-back" onclick="goBack(5)">←</button><button class="btn-next" id="next-5" onclick="goNext(5)" disabled>Avanti →</button></div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step" id="step-6">
+    <div class="q-card">
+      <div class="q-number">Domanda 6 di 8</div>
+      <div class="q-text">Se le 3 serate potessero spiegarti bene 3 cose, quali sceglieresti?</div>
+      <div class="q-sub">Scelta multipla — massimo 3.</div>
+    </div>
+    <div class="options" id="opts-6">
+      <div class="option" data-val="Call e put: le basi fatte bene" onclick="selectMulti(this,'q6',3)"><div class="option-tick"></div><div class="option-label">Cosa sono e come funzionano davvero call e put (le basi, fatte bene)</div></div>
+      <div class="option" data-val="Le greche: delta, theta, vega, gamma" onclick="selectMulti(this,'q6',3)"><div class="option-tick"></div><div class="option-label">Le greche: delta, theta, vega, gamma — cosa sono e come si leggono</div></div>
+      <div class="option" data-val="Volatilità implicita" onclick="selectMulti(this,'q6',3)"><div class="option-tick"></div><div class="option-label">La volatilità implicita: perché un'opzione può perdere anche se il titolo va nella tua direzione</div></div>
+      <div class="option" data-val="Gamma dei market maker" onclick="selectMulti(this,'q6',3)"><div class="option-tick"></div><div class="option-label">Il gamma dei market maker: perché certi titoli "accelerano" i movimenti</div></div>
+      <div class="option" data-val="Come scegliere la strategia giusta" onclick="selectMulti(this,'q6',3)"><div class="option-tick"></div><div class="option-label">Come scegliere la strategia giusta in base al momento di mercato</div></div>
+      <div class="option" data-val="Come aggiustare un'operazione" onclick="selectMulti(this,'q6',3)"><div class="option-tick"></div><div class="option-label">Come aggiustare un'operazione (ridurre il rischio, provare a recuperare una perdita)</div></div>
+      <div class="option" data-val="Gestire scadenze e perdite" onclick="selectMulti(this,'q6',3)"><div class="option-tick"></div><div class="option-label">Come gestire scadenze e perdite senza farsi del male</div></div>
+      <div class="option" data-val="Strategie laterali ed esplosive" onclick="selectMulti(this,'q6',3)"><div class="option-tick"></div><div class="option-label">Le strategie laterali ed esplosive (calendar, butterfly, condor, strangle…)</div></div>
+    </div>
+    <div class="multi-hint" id="hint-6">Seleziona fino a 3 opzioni</div>
+    <div class="nav"><button class="btn-back" onclick="goBack(6)">←</button><button class="btn-next" id="next-6" onclick="goNext(6)" disabled>Avanti →</button></div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="step" id="step-7">
+    <div class="q-card">
+      <div class="q-number">Domanda 7 di 8</div>
+      <div class="q-text">Andando avanti, dove ti piacerebbe arrivare?</div>
+    </div>
+    <div class="options">
+      <div class="option" data-val="Seguire i segnali capendo cosa replico" onclick="selectSingle(this,'q7')"><div class="option-dot"></div><div class="option-label">Seguire i segnali capendo bene cosa replico</div></div>
+      <div class="option" data-val="Saper valutare un'operazione e decidere io" onclick="selectSingle(this,'q7')"><div class="option-dot"></div><div class="option-label">Saper valutare un'operazione e decidere io se entrarci</div></div>
+      <div class="option" data-val="Ragionare e costruire qualche operazione da solo" onclick="selectSingle(this,'q7')"><div class="option-dot"></div><div class="option-label">Arrivare a ragionare e costruire qualche operazione da solo</div></div>
+      <div class="option" data-val="Diventare autonomo" onclick="selectSingle(this,'q7')"><div class="option-dot"></div><div class="option-label">Diventare autonomo: trovare, costruire e gestire le mie operazioni</div></div>
+    </div>
+    <div class="nav"><button class="btn-back" onclick="goBack(7)">←</button><button class="btn-next" id="next-7" onclick="goNext(7)" disabled>Avanti →</button></div>
+  </div>
+
+  <!-- STEP 8 -->
+  <div class="step" id="step-8">
+    <div class="q-card">
+      <div class="q-number">Domanda 8 di 8</div>
+      <div class="q-text">Qual è la cosa delle opzioni che non hai mai capito fino in fondo?</div>
+      <div class="q-sub">Quella che vorresti ti venisse spiegata una volta per tutte. Una frase basta.</div>
+    </div>
+    <textarea id="freetext" rows="4" placeholder="Scrivila qui..."></textarea>
+    <div class="nav"><button class="btn-back" onclick="goBack(8)">←</button><button class="btn-next" id="next-8" onclick="submitForm()">Invia →</button></div>
+  </div>
+
+  <!-- Thank you -->
+  <div class="thankyou" id="thankyou">
+    <div class="ty-icon">✦</div>
+    <h2>Ricevuto.<br><span>Grazie davvero.</span></h2>
+    <p>Le tue risposte entrano direttamente nella costruzione delle prossime serate. Non finiscono in un cassetto.</p>
+    <div class="ty-divider"></div>
+    <div class="ty-note">A presto — il team Codice Opzioni</div>
+  </div>
+
+</div>
+
+<script>
+const TOTAL_STEPS = 8;
+let currentStep = 1;
+let answers = {};
+let multiAnswers = { q6: [] };
+
+function selectSingle(el, key) {
+  el.parentElement.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  answers[key] = el.dataset.val;
+  checkNext(parseInt(el.closest('.step').id.split('-')[1]));
+}
+
+function selectMulti(el, key, max) {
+  const isSelected = el.classList.contains('selected');
+  const selected = el.closest('.options').querySelectorAll('.option.selected');
+
+  if (!isSelected && selected.length >= max) {
+    // Lampeggia l'hint
+    const hint = document.getElementById('hint-' + el.closest('.step').id.split('-')[1]);
+    if (hint) { hint.style.color = '#F87171'; setTimeout(() => hint.style.color = 'var(--gold)', 800); }
+    return;
+  }
+
+  el.classList.toggle('selected');
+  const nowSelected = el.closest('.options').querySelectorAll('.option.selected');
+  multiAnswers[key] = Array.from(nowSelected).map(o => o.dataset.val);
+  answers[key] = multiAnswers[key].join(' | ');
+
+  const stepNum = parseInt(el.closest('.step').id.split('-')[1]);
+  const hint = document.getElementById('hint-' + stepNum);
+  if (hint) hint.textContent = nowSelected.length + ' / ' + max + ' selezionate';
+
+  checkNext(stepNum);
+}
+
+function checkNext(n) {
+  const btn = document.getElementById('next-' + n);
+  if (!btn) return;
+  btn.disabled = !answers['q' + n] || answers['q' + n].length === 0;
+}
+
+function goNext(from) {
+  document.getElementById('step-' + from).classList.remove('active');
+  document.getElementById('step-' + (from + 1)).classList.add('active');
+  currentStep = from + 1;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goBack(from) {
+  document.getElementById('step-' + from).classList.remove('active');
+  document.getElementById('step-' + (from - 1)).classList.add('active');
+  currentStep = from - 1;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const pct = (currentStep / TOTAL_STEPS) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = currentStep + ' / ' + TOTAL_STEPS;
+}
+
+function submitForm() {
+  answers['q8'] = document.getElementById('freetext').value || '—';
+  answers['timestamp'] = new Date().toLocaleString('it-IT');
+
+  const formData = new FormData();
+  formData.append('form-name', 'codice-opzioni');
+  Object.entries(answers).forEach(([k, v]) => formData.append(k, String(v)));
+
+  fetch('/', { method: 'POST', body: formData })
+    .then(() => showThanks())
+    .catch(() => showThanks());
+}
+
+function showThanks() {
+  document.getElementById('step-8').classList.remove('active');
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('thankyou').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
